@@ -6,14 +6,14 @@ import (
     "github.com/labstack/echo/v4/middleware"
 
     "github.com/go-pg/pg/v10"
-    "github.com/go-pg/pg/v10/orm"
+    //"github.com/go-pg/pg/v10/orm"
 )
 
 func main() {
     db := pg.Connect(&pg.Options{
         Addr: ":5999",
         User:  "postgres",
-        Password: "postgres"
+        Password: "postgres",
     })
     defer db.Close()
 

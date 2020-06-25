@@ -6,6 +6,18 @@ services:
             - ../configs/database.env
         volumes:
             - ../data/database-data:/var/lib/postgresql/data/
+    app:
+        image: "golang"
+        tty: true
+        env_file:
+            - ../configs/database.env
+        volumes:
+            - ..:/go/src/github.com/smart--petea/rest-coffee
+        working_dir: /go/src/github.com/smart--petea/rest-coffee
+        links: 
+            - database
+        ports:
+            - 9991:9991
 
 volumes:
     database-data:
