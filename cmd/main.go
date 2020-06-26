@@ -7,15 +7,12 @@ import (
 
     "github.com/go-pg/pg/v10"
     //"github.com/go-pg/pg/v10/orm"
+
+    "log"
+    "time"
 )
 
 func main() {
-    db := pg.Connect(&pg.Options{
-        Addr: ":9992",
-        User:  "postgres",
-        Password: "postgres",
-    })
-    defer db.Close()
 
 
 
@@ -30,12 +27,32 @@ func main() {
     e.Logger.Fatal(e.Start(":9991"))
 }
 
-type Order struct {
-}
-
 type OrderItem struct {
 }
 
 func createOrder(c echo.Context) error {
+    db := pg.Connect(&pg.Options{
+        Addr: "database:5432",
+        User:  "postgres",
+        Password: "postgres",
+    })
+    defer db.Close()
+
+    order := new(Order)
+    if err := c.Bind(order); err != nil {
+        return nil
+    }
+
+    err := db.Insert(order)
+    if err != nil {
+        log.Printf("%v\n", err)
+        return nil
+    }
+
     return c.String(http.StatusOK, "Order created")
+}
+
+type Order struct {
+    Id int `pg:"pk_id" json:"id"`
+    CreatedAt time.Time `pg:"created_at" pg:"default:now()" json:"created_at"`
 }
