@@ -6,6 +6,8 @@ services:
             - ../configs/database.env
         volumes:
             - ../data/database-data:/var/lib/postgresql/data/
+        ports:
+            - 9992:5432
     app:
         image: "golang"
         tty: true

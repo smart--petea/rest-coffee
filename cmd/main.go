@@ -11,7 +11,7 @@ import (
 
 func main() {
     db := pg.Connect(&pg.Options{
-        Addr: ":5999",
+        Addr: ":9992",
         User:  "postgres",
         Password: "postgres",
     })
@@ -27,7 +27,7 @@ func main() {
 
     e.POST("/order", createOrder)
 
-    e.Logger.Fatal(e.Start(":1323"))
+    e.Logger.Fatal(e.Start(":9991"))
 }
 
 type Order struct {
