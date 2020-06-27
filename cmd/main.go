@@ -5,17 +5,22 @@ import (
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
 
+    "github.com/joho/godotenv"
+
     "github.com/go-pg/pg/v10"
     //"github.com/go-pg/pg/v10/orm"
 
     "log"
     "time"
+    "os"
 )
 
 func main() {
 
-
-
+    err := godotenv.Load("./configs/database.env")
+    if err != nil {
+        log.Fatal("Error loading .env. file")
+    }
 
     e := echo.New()
 
@@ -33,8 +38,9 @@ type OrderItem struct {
 func createOrder(c echo.Context) error {
     db := pg.Connect(&pg.Options{
         Addr: "database:5432",
-        User:  "postgres",
-        Password: "postgres",
+        User:  os.Getenv("POSTGRES_USER"),
+        Password: os.Getenv("POSTGRES_PASSWORD"),
+        Database: os.Getenv("POSTGRES_DB"),
     })
     defer db.Close()
 
@@ -53,6 +59,6 @@ func createOrder(c echo.Context) error {
 }
 
 type Order struct {
-    Id int `pg:"pk_id" json:"id"`
+    Id int `pg:"id" json:"id"`
     CreatedAt time.Time `pg:"created_at" pg:"default:now()" json:"created_at"`
 }
