@@ -9,10 +9,12 @@ import (
 
     "github.com/go-pg/pg/v10"
     //"github.com/go-pg/pg/v10/orm"
+    "encoding/json"
 
     "log"
     "time"
     "os"
+    "fmt"
 )
 
 func main() {
@@ -49,16 +51,30 @@ func createOrder(c echo.Context) error {
         return nil
     }
 
+    if order.ID != 0 {
+        httpError := echo.ErrBadRequest 
+        httpError.Message = "ID should not be set"
+        return httpError
+    }
+
     err := db.Insert(order)
+    if err != nil {
+        log.Printf("%v\n", err)
+        httpError := echo.ErrBadRequest 
+        httpError.Message = fmt.Sprintf("%s", err)
+        return httpError
+    }
+
+    orderJson, err := json.Marshal(order)
     if err != nil {
         log.Printf("%v\n", err)
         return nil
     }
 
-    return c.String(http.StatusOK, "Order created")
+    return c.String(http.StatusOK, string(orderJson))
 }
 
 type Order struct {
-    Id int `pg:"id" json:"id"`
+    ID int `pg:"id,pk" json:"id"`
     CreatedAt time.Time `pg:"created_at" pg:"default:now()" json:"created_at"`
 }
