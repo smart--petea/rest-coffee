@@ -8,13 +8,14 @@ import (
     "github.com/joho/godotenv"
 
     "github.com/go-pg/pg/v10"
-    //"github.com/go-pg/pg/v10/orm"
+//    "github.com/go-pg/pg/v10/orm"
     "encoding/json"
 
     "log"
     "time"
     "os"
     "fmt"
+    "strconv"
 )
 
 func main() {
@@ -30,9 +31,45 @@ func main() {
     e.Use(middleware.Recover())
 
     e.POST("/order", createOrder)
+    e.GET("/order/:id", getOrder)
     e.POST("/good", createGood)
 
     e.Logger.Fatal(e.Start(":9991"))
+}
+
+func getOrder(c echo.Context) error {
+    db := getDb()
+    defer db.Close()
+
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        log.Printf("%v\n", err)
+        httpError := echo.ErrBadRequest 
+        httpError.Message = fmt.Sprintf("%s", err)
+        return httpError
+    }
+
+    order := &Order{ID: id}
+    err = db.
+        Model(order).
+        Relation("Items").
+        Where("id = ?", id).
+        Select()
+
+    if err != nil {
+        log.Printf("%v\n", err)
+        httpError := echo.ErrBadRequest 
+        httpError.Message = fmt.Sprintf("%s", err)
+        return httpError
+    }
+
+    orderJson, err := json.Marshal(order)
+    if err != nil {
+        log.Printf("%v\n", err)
+        return nil
+    }
+
+    return c.String(http.StatusOK, string(orderJson))
 }
 
 type CreateOrderBody struct {
