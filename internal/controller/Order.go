@@ -56,7 +56,16 @@ func (*Order) Post(c echo.Context) error {
     db := helper.GetDb()
     defer db.Close()
 
-    log.Printf("\n45\n")
+    tx, err := db.Begin()
+    if err != nil {
+        log.Printf("%v\n", err)
+        httpError := echo.ErrInternalServerError 
+        httpError.Message = fmt.Sprintf("%s", err)
+        return httpError
+ 
+        httpError.Message = fmt.Sprintf("%s", err)
+        return httpError
+    }
 
     createOrderBody := new(postOrderBodyType)
     if err := c.Bind(createOrderBody); err != nil {
@@ -67,7 +76,7 @@ func (*Order) Post(c echo.Context) error {
     }
 
     order := new(entity.Order)
-    err := db.Insert(order)
+    err = tx.Insert(order)
     if err != nil {
         log.Printf("%v\n", err)
         httpError := echo.ErrBadRequest 
@@ -79,8 +88,10 @@ func (*Order) Post(c echo.Context) error {
 
     for _, orderItem := range createOrderBody.Items {
         orderItem.OrderId = order.ID
-        err := db.Insert(orderItem)
+        err := tx.Insert(orderItem)
         if err != nil {
+            tx.Rollback()
+
             log.Printf("%v\n", err)
             httpError := echo.ErrBadRequest 
             httpError.Message = fmt.Sprintf("%s", err)
@@ -90,9 +101,7 @@ func (*Order) Post(c echo.Context) error {
         order.Items = append(order.Items, orderItem)
     }
 
-    //todo transaction
-    //todo array of order items
-
+    tx.Commit()
     orderJson, err := json.Marshal(order)
     if err != nil {
         log.Printf("%v\n", err)
