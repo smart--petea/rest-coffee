@@ -28,6 +28,7 @@ func main() {
 
     var goodController controller.Good
     e.POST("/good", goodController.Post)
+    e.GET("/good/:id", goodController.Get)
 
     e.Logger.Fatal(e.Start(":9991")) //todo put the port in env. Don't forget about docker-compose.yml
 }

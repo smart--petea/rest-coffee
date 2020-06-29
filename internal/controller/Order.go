@@ -22,9 +22,7 @@ func (*Order) Get(c echo.Context) error {
     id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         log.Printf("%v\n", err)
-        httpError := echo.ErrBadRequest 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
+        return echo.ErrNotFound
     }
 
     order := &entity.Order{ID: id}
