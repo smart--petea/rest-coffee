@@ -13,7 +13,9 @@ import (
     "strconv"
 )
 
-type Good struct {}
+type Good struct {
+    Base
+}
 
 func (*Good) Post(c echo.Context) error {
     db := helper.GetDb()

@@ -13,16 +13,17 @@ import (
     "github.com/smart--petea/rest-coffee/internal/helper"
 )
 
-type Order struct {}
+type Order struct {
+    Base
+}
 
-func (*Order) Get(c echo.Context) error {
+func (orderController *Order) Get(c echo.Context) error {
     db := helper.GetDb()
     defer db.Close()
 
     id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
-        log.Printf("%v\n", err)
-        return echo.ErrNotFound
+        return orderController.HttpError(echo.ErrNotFound, err)
     }
 
     order := &entity.Order{ID: id}
