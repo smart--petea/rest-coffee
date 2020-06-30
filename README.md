@@ -3,4 +3,4 @@
 
 # migration
 cd migrations
-goose postgres "user=postgres password=postgres host=database sslmode=disable"  up
+goose postgres "user=postgres password=postgres host=database sslmode=disable database=coffee" up
