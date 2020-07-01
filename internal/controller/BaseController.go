@@ -5,10 +5,10 @@ import (
     "fmt"
 )
 
-type Base struct {
+type BaseController struct {
 }
 
-func (base *Base) HttpError(httpError *echo.HTTPError, err error) *echo.HTTPError {
+func (baseController *BaseController) HttpError(httpError *echo.HTTPError, err error) *echo.HTTPError {
     httpError.Message = fmt.Sprintf("%s", err)
     return httpError
 }

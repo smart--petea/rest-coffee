@@ -4,7 +4,6 @@ import (
     "strconv"
 
     "github.com/labstack/echo/v4"
-    "fmt"
     "log"
     "encoding/json"
     "net/http"
@@ -14,7 +13,7 @@ import (
 )
 
 type Order struct {
-    Base
+    BaseController
 }
 
 func (orderController *Order) Get(c echo.Context) error {
@@ -34,10 +33,7 @@ func (orderController *Order) Get(c echo.Context) error {
         Select()
 
     if err != nil {
-        log.Printf("%v\n", err)
-        httpError := echo.ErrBadRequest 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
+        return orderController.HttpError(echo.ErrBadRequest, err)
     }
 
     orderJson, err := json.Marshal(order)
@@ -53,36 +49,24 @@ type postOrderBodyType struct {
     Items []*entity.OrderItem `json:"items"`
 }
 
-func (*Order) Post(c echo.Context) error {
+func (orderController *Order) Post(c echo.Context) error {
     db := helper.GetDb()
     defer db.Close()
 
     tx, err := db.Begin()
     if err != nil {
-        log.Printf("%v\n", err)
-        httpError := echo.ErrInternalServerError 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
- 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
+        return orderController.HttpError(echo.ErrInternalServerError, err)
     }
 
     createOrderBody := new(postOrderBodyType)
     if err := c.Bind(createOrderBody); err != nil {
-        log.Printf("%v\n", err)
-        httpError := echo.ErrBadRequest 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
+        return orderController.HttpError(echo.ErrBadRequest, err)
     }
 
     order := new(entity.Order)
     err = tx.Insert(order)
     if err != nil {
-        log.Printf("%v\n", err)
-        httpError := echo.ErrBadRequest 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
+        return orderController.HttpError(echo.ErrBadRequest, err)
     }
 
     order.Items = make([]*entity.OrderItem, 0, len(createOrderBody.Items))
@@ -93,10 +77,7 @@ func (*Order) Post(c echo.Context) error {
         if err != nil {
             tx.Rollback()
 
-            log.Printf("%v\n", err)
-            httpError := echo.ErrBadRequest 
-            httpError.Message = fmt.Sprintf("%s", err)
-            return httpError
+            return orderController.HttpError(echo.ErrBadRequest, err)
         }
 
         order.Items = append(order.Items, orderItem)

@@ -9,35 +9,31 @@ import (
     "log"
     "net/http"
     "encoding/json"
-    "fmt"
     "strconv"
+    "errors"
 )
 
 type Good struct {
-    Base
+    BaseController
 }
 
-func (*Good) Post(c echo.Context) error {
+func (goodController *Good) Post(c echo.Context) error {
     db := helper.GetDb()
     defer db.Close()
 
     good := new(entity.Good)
     if err := c.Bind(good); err != nil {
-        return nil
+        return goodController.HttpError(echo.ErrNotFound, err)
     }
 
     if good.ID != 0 {
-        httpError := echo.ErrBadRequest 
-        httpError.Message = "ID should not be set"
-        return httpError
+        err := errors.New("Id should not be setted")
+        return goodController.HttpError(echo.ErrBadRequest, err)
     }
 
     err := db.Insert(good)
     if err != nil {
-        log.Printf("%v\n", err)
-        httpError := echo.ErrBadRequest 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
+        return goodController.HttpError(echo.ErrBadRequest, err)
     }
 
     goodJson, err := json.Marshal(good)
@@ -49,16 +45,13 @@ func (*Good) Post(c echo.Context) error {
     return c.String(http.StatusOK, string(goodJson))
 }
 
-func (*Good) Get(c echo.Context) error {
+func (goodController *Good) Get(c echo.Context) error {
     db := helper.GetDb()
     defer db.Close()
 
     id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
-        log.Printf("%v\n", err)
-        httpError := echo.ErrBadRequest 
-        httpError.Message = fmt.Sprintf("%s", err)
-        return httpError
+        return goodController.HttpError(echo.ErrBadRequest, err)
     }
 
     good := &entity.Good{ID: id}
@@ -66,10 +59,8 @@ func (*Good) Get(c echo.Context) error {
         Model(good).
         Where("id = ?", id).
         Select()
-
     if err != nil {
-        log.Printf("%v\n", err)
-        return echo.ErrNotFound
+        return goodController.HttpError(echo.ErrInternalServerError, err)
     }
 
     goodJson, err := json.Marshal(good)
