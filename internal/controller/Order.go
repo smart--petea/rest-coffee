@@ -4,9 +4,6 @@ import (
     "strconv"
 
     "github.com/labstack/echo/v4"
-    "log"
-    "encoding/json"
-    "net/http"
 
     "github.com/smart--petea/rest-coffee/internal/entity"
     "github.com/smart--petea/rest-coffee/internal/helper"
@@ -36,13 +33,7 @@ func (orderController *Order) Get(c echo.Context) error {
         return orderController.HttpError(echo.ErrBadRequest, err)
     }
 
-    orderJson, err := json.Marshal(order)
-    if err != nil {
-        log.Printf("%v\n", err)
-        return nil
-    }
-
-    return c.String(http.StatusOK, string(orderJson))
+    return orderController.Response(c, order)
 }
 
 type postOrderBodyType struct {
@@ -84,11 +75,6 @@ func (orderController *Order) Post(c echo.Context) error {
     }
 
     tx.Commit()
-    orderJson, err := json.Marshal(order)
-    if err != nil {
-        log.Printf("%v\n", err)
-        return nil
-    }
 
-    return c.String(http.StatusOK, string(orderJson))
+    return orderController.Response(c, order)
 }

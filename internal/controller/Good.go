@@ -6,9 +6,6 @@ import (
     "github.com/smart--petea/rest-coffee/internal/entity"
     "github.com/smart--petea/rest-coffee/internal/helper"
 
-    "log"
-    "net/http"
-    "encoding/json"
     "strconv"
     "errors"
 )
@@ -36,13 +33,7 @@ func (goodController *Good) Post(c echo.Context) error {
         return goodController.HttpError(echo.ErrBadRequest, err)
     }
 
-    goodJson, err := json.Marshal(good)
-    if err != nil {
-        log.Printf("%v\n", err)
-        return nil
-    }
-
-    return c.String(http.StatusOK, string(goodJson))
+    return goodController.Response(c, good)
 }
 
 func (goodController *Good) Get(c echo.Context) error {
@@ -63,11 +54,5 @@ func (goodController *Good) Get(c echo.Context) error {
         return goodController.HttpError(echo.ErrInternalServerError, err)
     }
 
-    goodJson, err := json.Marshal(good)
-    if err != nil {
-        log.Printf("%v\n", err)
-        return nil
-    }
-
-    return c.String(http.StatusOK, string(goodJson))
+    return goodController.Response(c, good)
 }
