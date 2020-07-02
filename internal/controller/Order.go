@@ -6,7 +6,6 @@ import (
     "github.com/labstack/echo/v4"
 
     "github.com/smart--petea/rest-coffee/internal/entity"
-    "github.com/smart--petea/rest-coffee/internal/helper"
 )
 
 type Order struct {
@@ -14,16 +13,13 @@ type Order struct {
 }
 
 func (orderController *Order) Get(c echo.Context) error {
-    db := helper.GetDb()
-    defer db.Close()
-
     id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         return orderController.HttpError(echo.ErrNotFound, err)
     }
 
     order := &entity.Order{ID: id}
-    err = db.
+    err = orderController.Db.
         Model(order).
         Relation("Items").
         Where("id = ?", id).
@@ -41,10 +37,7 @@ type postOrderBodyType struct {
 }
 
 func (orderController *Order) Post(c echo.Context) error {
-    db := helper.GetDb()
-    defer db.Close()
-
-    tx, err := db.Begin()
+    tx, err := orderController.Db.Begin()
     if err != nil {
         return orderController.HttpError(echo.ErrInternalServerError, err)
     }

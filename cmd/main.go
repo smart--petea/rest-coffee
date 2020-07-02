@@ -9,6 +9,7 @@ import (
     "log"
 
     "github.com/smart--petea/rest-coffee/internal/controller"
+    "github.com/smart--petea/rest-coffee/internal/helper"
 )
 
 func main() {
@@ -22,11 +23,13 @@ func main() {
     e.Use(middleware.Logger())
     e.Use(middleware.Recover())
 
-    var orderController controller.Order
+    dbConnection := helper.GetDb()
+
+    orderController := controller.Order{controller.BaseController{Db: dbConnection}}
     e.POST("/order", orderController.Post)
     e.GET("/order/:id", orderController.Get)
 
-    var goodController controller.Good
+    goodController := controller.Good{controller.BaseController{Db: dbConnection}}
     e.POST("/good", goodController.Post)
     e.GET("/good/:id", goodController.Get)
 

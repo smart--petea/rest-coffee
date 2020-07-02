@@ -5,9 +5,11 @@ import (
     "fmt"
     "encoding/json"
     "net/http"
+    "github.com/go-pg/pg/v10"
 )
 
 type BaseController struct {
+    Db *pg.DB
 }
 
 func (baseController *BaseController) HttpError(httpError *echo.HTTPError, err error) *echo.HTTPError {

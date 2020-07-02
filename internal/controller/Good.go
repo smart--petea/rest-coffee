@@ -4,7 +4,6 @@ import (
     "github.com/labstack/echo/v4"
 
     "github.com/smart--petea/rest-coffee/internal/entity"
-    "github.com/smart--petea/rest-coffee/internal/helper"
 
     "strconv"
     "errors"
@@ -15,9 +14,6 @@ type Good struct {
 }
 
 func (goodController *Good) Post(c echo.Context) error {
-    db := helper.GetDb()
-    defer db.Close()
-
     good := new(entity.Good)
     if err := c.Bind(good); err != nil {
         return goodController.HttpError(echo.ErrNotFound, err)
@@ -28,7 +24,7 @@ func (goodController *Good) Post(c echo.Context) error {
         return goodController.HttpError(echo.ErrBadRequest, err)
     }
 
-    err := db.Insert(good)
+    err := goodController.Db.Insert(good)
     if err != nil {
         return goodController.HttpError(echo.ErrBadRequest, err)
     }
@@ -37,16 +33,13 @@ func (goodController *Good) Post(c echo.Context) error {
 }
 
 func (goodController *Good) Get(c echo.Context) error {
-    db := helper.GetDb()
-    defer db.Close()
-
     id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         return goodController.HttpError(echo.ErrBadRequest, err)
     }
 
     good := &entity.Good{ID: id}
-    err = db.
+    err = goodController.Db.
         Model(good).
         Where("id = ?", id).
         Select()
