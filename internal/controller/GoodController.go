@@ -2,18 +2,17 @@ package controller
 
 import (
     "github.com/labstack/echo/v4"
-
     "github.com/smart--petea/rest-coffee/internal/entity"
-
+    "github.com/go-pg/pg/v10"
     "strconv"
     "errors"
 )
 
-type Good struct {
-    BaseController
+type GoodController struct {
+    *BaseController
 }
 
-func (goodController *Good) Post(c echo.Context) error {
+func (goodController *GoodController) Post(c echo.Context) error {
     good := new(entity.Good)
     if err := c.Bind(good); err != nil {
         return goodController.HttpError(echo.ErrNotFound, err)
@@ -32,7 +31,7 @@ func (goodController *Good) Post(c echo.Context) error {
     return goodController.Response(c, good)
 }
 
-func (goodController *Good) Get(c echo.Context) error {
+func (goodController *GoodController) Get(c echo.Context) error {
     id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         return goodController.HttpError(echo.ErrBadRequest, err)
@@ -48,4 +47,10 @@ func (goodController *Good) Get(c echo.Context) error {
     }
 
     return goodController.Response(c, good)
+}
+
+func NewGoodController(Db *pg.DB) *GoodController {
+    return &GoodController{
+        BaseController: &BaseController{Db: Db},
+    }
 }

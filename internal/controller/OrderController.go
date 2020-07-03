@@ -2,17 +2,16 @@ package controller
 
 import (
     "strconv"
-
+    "github.com/go-pg/pg/v10"
     "github.com/labstack/echo/v4"
-
     "github.com/smart--petea/rest-coffee/internal/entity"
 )
 
-type Order struct {
-    BaseController
+type OrderController struct {
+    *BaseController
 }
 
-func (orderController *Order) Get(c echo.Context) error {
+func (orderController *OrderController) Get(c echo.Context) error {
     id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         return orderController.HttpError(echo.ErrNotFound, err)
@@ -36,7 +35,7 @@ type postOrderBodyType struct {
     Items []*entity.OrderItem `json:"items"`
 }
 
-func (orderController *Order) Post(c echo.Context) error {
+func (orderController *OrderController) Post(c echo.Context) error {
     tx, err := orderController.Db.Begin()
     if err != nil {
         return orderController.HttpError(echo.ErrInternalServerError, err)
@@ -70,4 +69,10 @@ func (orderController *Order) Post(c echo.Context) error {
     tx.Commit()
 
     return orderController.Response(c, order)
+}
+
+func NewOrderController(Db *pg.DB) *OrderController {
+    return &OrderController{
+        BaseController: &BaseController{Db: Db},
+    }
 }

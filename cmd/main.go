@@ -25,11 +25,11 @@ func main() {
 
     dbConnection := helper.GetDb()
 
-    orderController := controller.Order{controller.BaseController{Db: dbConnection}}
+    orderController := controller.NewOrderController(dbConnection)
     e.POST("/order", orderController.Post)
     e.GET("/order/:id", orderController.Get)
 
-    goodController := controller.Good{controller.BaseController{Db: dbConnection}}
+    goodController := controller.NewGoodController(dbConnection)
     e.POST("/good", goodController.Post)
     e.GET("/good/:id", goodController.Get)
 

@@ -25,3 +25,7 @@ func (baseController *BaseController) Response(c echo.Context, obj interface{}) 
 
     return c.String(http.StatusOK, string(objJson))
 }
+
+func NewBaseController(Db *pg.DB) *BaseController {
+    return &BaseController{Db: Db}
+}
