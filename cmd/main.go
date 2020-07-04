@@ -6,18 +6,31 @@ import (
     "github.com/joho/godotenv"
     "github.com/smart--petea/rest-coffee/internal/controller"
     "github.com/smart--petea/rest-coffee/internal/helper"
+
+    "log"
+    "os"
 )
 
 func main() {
-    e := echo.New()
 
     err := godotenv.Load("./configs/database.env")
     if err != nil {
-        e.Logger.Fatal("Error loading .env. file")
+        log.Fatal("Error loading .env. file")
     }
 
+    e := echo.New()
 
-    e.Use(middleware.Logger())
+    f, err := os.OpenFile("log/api.log", os.O_CREATE | os.O_RDWR | os.O_APPEND, 0666)
+    if err != nil {
+        log.Fatal("Cannot open log file, (%s)", err.Error())
+    }
+    defer f.Close()
+
+    loggerConfig := middleware.DefaultLoggerConfig
+    loggerConfig.Output = f
+    e.Use(middleware.LoggerWithConfig(loggerConfig)) //to file
+
+    e.Use(middleware.Logger()) //to stdout
     e.Use(middleware.Recover())
 
     dbConnection := helper.GetDb()
