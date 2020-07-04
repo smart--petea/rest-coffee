@@ -49,8 +49,17 @@ func (goodController *GoodController) Get(c echo.Context) error {
     return goodController.Response(c, good)
 }
 
-func NewGoodController(Db *pg.DB) *GoodController {
-    return &GoodController{
-        BaseController: &BaseController{Db: Db},
+func (goodController *GoodController) Routing() {
+    goodController.POST("/good", goodController.Post)
+    goodController.GET("/good/:id", goodController.Get)
+}
+
+func NewGoodController(Db *pg.DB, e *echo.Echo) *GoodController {
+    goodController := GoodController{
+        BaseController: NewBaseController(Db, e),
     }
+
+    goodController.Routing()
+
+    return &goodController
 }

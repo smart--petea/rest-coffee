@@ -71,8 +71,17 @@ func (orderController *OrderController) Post(c echo.Context) error {
     return orderController.Response(c, order)
 }
 
-func NewOrderController(Db *pg.DB) *OrderController {
-    return &OrderController{
-        BaseController: &BaseController{Db: Db},
+func (orderController *OrderController) Routing() {
+    orderController.POST("/order", orderController.Post)
+    orderController.GET("/order/:id", orderController.Get)
+}
+
+func NewOrderController(Db *pg.DB, e *echo.Echo) *OrderController {
+    orderController := OrderController{
+        BaseController: NewBaseController(Db, e),
     }
+
+    orderController.Routing()
+
+    return &orderController
 }

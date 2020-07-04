@@ -10,6 +10,7 @@ import (
 
 type BaseController struct {
     Db *pg.DB
+    Echo *echo.Echo
 }
 
 func (baseController *BaseController) HttpError(httpError *echo.HTTPError, err error) *echo.HTTPError {
@@ -26,6 +27,17 @@ func (baseController *BaseController) Response(c echo.Context, obj interface{}) 
     return c.String(http.StatusOK, string(objJson))
 }
 
-func NewBaseController(Db *pg.DB) *BaseController {
-    return &BaseController{Db: Db}
+func (baseController *BaseController) POST(path string, h echo.HandlerFunc) {
+    baseController.Echo.POST(path, h)
+}
+
+func (baseController *BaseController) GET(path string, h echo.HandlerFunc) {
+    baseController.Echo.GET(path, h)
+}
+
+func NewBaseController(Db *pg.DB, Echo *echo.Echo) *BaseController {
+    return &BaseController{
+        Db: Db,
+        Echo: Echo,
+    }
 }
